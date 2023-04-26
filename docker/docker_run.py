@@ -47,8 +47,7 @@ if __name__=="__main__":
     cmd += " -v /media:/media " #mount media
     cmd += " -v ~/.torch:%(home_directory)s/.torch " % {'home_directory': home_directory}  # mount torch folder 
                                                         # where pytorch standard models (i.e. resnet34) are stored
-    # user_id = 1002
-    # cmd += " --user %s " % user_id                                                    # login as current user
+                                                 # login as current user
     cmd += " --user %s " % user_name                                                    # login as current user
 
     # uncomment below to mount your data volume

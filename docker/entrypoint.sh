@@ -1,7 +1,7 @@
 #!/bin/bash
 set -e
 
-export DATA_DIR=~/data
+export DATA_DIR=~/code/data
 export DC_DATA_DIR=$DATA_DIR/pdc
 export DC_SOURCE_DIR=~/code
 export PDC_BUILD_DIR=$DC_SOURCE_DIR/build
