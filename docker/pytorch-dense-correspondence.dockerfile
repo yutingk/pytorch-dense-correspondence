@@ -1,4 +1,7 @@
-FROM nvidia/cuda:10.0-cudnn7-devel-ubuntu16.04
+# FROM nvidia/cuda:10.0-cudnn7-devel-ubuntu16.04
+FROM nvidia/cuda:10.0-cudnn7-devel-ubuntu18.04
+
+ENV DEBIAN_FRONTEND=noninteractive
 
 ARG USER_NAME
 ARG USER_PASSWORD
@@ -18,6 +21,7 @@ RUN groupmod -g $USER_GID $USER_NAME
 WORKDIR /home/$USER_NAME
 ENV USER_HOME_DIR=/home/$USER_NAME
 
+RUN DEBIAN_FRONTEND=noninteractive apt-get -y install tzdata
 
 COPY ./install_dependencies.sh /tmp/install_dependencies.sh
 RUN yes "Y" | /tmp/install_dependencies.sh
@@ -33,15 +37,7 @@ COPY ./install_director.sh /tmp/install_director.sh
 RUN cd $WORKDIR && yes "Y" | /tmp/install_director.sh
 
 # set the terminator inside the docker container to be a different color
-RUN mkdir -p .config/terminator
-COPY ./terminator_config .config/terminator/config
-
-
-# install GLX-Gears
-RUN apt-get update && apt-get install -y \
-   mesa-utils && \
-   rm -rf /var/lib/apt/lists/*
-
+.
 
 
 ###### COMMENT OUT THIS BLOCK IF USING NVIDIA-DOCKER1 ###########
@@ -91,6 +87,6 @@ ENV NVIDIA_DRIVER_CAPABILITIES \
 # change ownership of everything to our user
 RUN cd ${USER_HOME_DIR} && echo $(pwd) && chown $USER_NAME:$USER_NAME -R .
 
+RUN unset DEBIAN_FRONTEND
 
 ENTRYPOINT bash -c "source ~/code/docker/entrypoint.sh && /bin/bash"
-

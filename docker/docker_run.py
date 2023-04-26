@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 from __future__ import print_function
 
 import argparse
@@ -10,6 +10,7 @@ import yaml
 if __name__=="__main__":
     user_name = getpass.getuser()
     default_image_name = user_name + '-pytorch-dense-correspondence'
+    # default_image_name = 'julie/pytorch-dense-correspondence'
     parser = argparse.ArgumentParser()
     parser.add_argument("-i", "--image", type=str,
         help="(required) name of the image that this container is derived from", default=default_image_name)
@@ -34,6 +35,7 @@ if __name__=="__main__":
     dense_correspondence_source_dir = os.path.join(home_directory, 'code')
 
     cmd = "xhost +local:root \n"
+    # cmd = "xhost + \n"
     cmd += "nvidia-docker run "
     if args.container:
         cmd += " --name %(container_name)s " % {'container_name': args.container}
@@ -45,12 +47,15 @@ if __name__=="__main__":
     cmd += " -v /media:/media " #mount media
     cmd += " -v ~/.torch:%(home_directory)s/.torch " % {'home_directory': home_directory}  # mount torch folder 
                                                         # where pytorch standard models (i.e. resnet34) are stored
-
+    # user_id = 1002
+    # cmd += " --user %s " % user_id                                                    # login as current user
     cmd += " --user %s " % user_name                                                    # login as current user
 
     # uncomment below to mount your data volume
-    config_yaml = yaml.load(file(config_file))
+    config_yaml = yaml.load(open(config_file))
+    # print(config_yaml)
     host_name = socket.gethostname()
+    # print(home_directory)
     cmd += " -v %s:%s/data " %(config_yaml[host_name][user_name]['path_to_data_directory'], home_directory)
 
     # expose UDP ports
@@ -68,13 +73,14 @@ if __name__=="__main__":
 
 
 
-
     if args.entrypoint and args.entrypoint != "":
         cmd += "--entrypoint=\"%(entrypoint)s\" " % {"entrypoint": args.entrypoint}
     else:
         cmd += "-it "
     cmd += args.image
     cmd_endxhost = "xhost -local:root"
+    # cmd_endxhost = "xhost -"
+
 
     print("command = \n \n", cmd, "\n", cmd_endxhost)
     print("")
