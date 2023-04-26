@@ -37,7 +37,8 @@ COPY ./install_director.sh /tmp/install_director.sh
 RUN cd $WORKDIR && yes "Y" | /tmp/install_director.sh
 
 # set the terminator inside the docker container to be a different color
-.
+RUN mkdir -p .config/terminator
+COPY ./terminator_config .config/terminator/config
 
 
 ###### COMMENT OUT THIS BLOCK IF USING NVIDIA-DOCKER1 ###########
