@@ -1,0 +1,2 @@
+source docker/entrypoint.sh
+use_pytorch_dense_correspondence
