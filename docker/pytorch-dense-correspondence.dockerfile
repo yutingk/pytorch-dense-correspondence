@@ -2,6 +2,7 @@
 FROM nvidia/cuda:10.0-cudnn7-devel-ubuntu18.04
 
 ENV DEBIAN_FRONTEND=noninteractive
+ENV ROS_DISTRO melodic
 
 ARG USER_NAME
 ARG USER_PASSWORD
@@ -39,6 +40,27 @@ RUN cd $WORKDIR && yes "Y" | /tmp/install_director.sh
 # set the terminator inside the docker container to be a different color
 RUN mkdir -p .config/terminator
 COPY ./terminator_config .config/terminator/config
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    lsb-release
+
+
+###################################### ROS #####################################
+# setup sources.list
+RUN sh -c 'echo "deb http://packages.ros.org/ros/ubuntu $(lsb_release -sc) main" > /etc/apt/sources.list.d/ros-latest.list'
+
+RUN apt-key adv --keyserver 'hkp://keyserver.ubuntu.com:80' --recv-key C1CF6E31E6BADE8868B172B4F42ED6FBAB17C654
+
+# install bootstrap tools
+RUN apt-get -o Acquire::ForceIPv4=true update && apt-get -o Acquire::ForceIPv4=true install --no-install-recommends -y \
+    ros-melodic-desktop-full \
+    ros-melodic-rosbridge-suite \
+    python-rosdep \
+    python-rosinstall \
+    python-rosinstall-generator \
+    python-wstool \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
 
 
 ###### COMMENT OUT THIS BLOCK IF USING NVIDIA-DOCKER1 ###########
