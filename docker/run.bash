@@ -2,12 +2,10 @@
 
 ARGS=("$@")
 
-USER_NAME="julie"
-REPO_NAME="pytorch-dense-correspondence"
 CONTAINER_NAME="pytorch-dense-correspondence"
-REPOSITORY="julie-pytorch-dense-correspondence"
-home_directory="/home/${USER_NAME}"
-source_dir="/home/${USER_NAME}/pytorch-dense-correspondence"
+REPOSITORY="yutingk/pytorch-dense-correspondence"
+home_directory="/home/$USER"
+source_dir="/home/$USER/pytorch-dense-correspondence"
 
 TAG="latest"
 IMG="${REPOSITORY}:${TAG}"
@@ -68,14 +66,14 @@ docker run \
     -v ~/.ssh:${home_directory}/.ssh \
     -v /media:/media \
     -v ~/.torch:${home_directory}/.torch \
-    -v "/home/julie/pytorch-dense-correspondence/docker:${home_directory}/data" \
+    -v "/home/$USER/pytorch-dense-correspondence/docker:${home_directory}/data" \
     -v "/etc/localtime:/etc/localtime:ro" \
     -v "/dev:/dev" \
     -v "/var/run/docker.sock:/var/run/docker.sock" \
     -p 8888:8888 \
     --ipc=host \
-    --user "${USER_NAME}:root" \
-    --workdir "/home/${USER_NAME}/code" \
+    --user "$USER:root" \
+    --workdir "/home/$USER/code" \
     --name "${CONTAINER_NAME}" \
     --network host \
     --privileged \
