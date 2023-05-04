@@ -1,3 +1,20 @@
+# ARG-NCTU updates
+First, clone the repo and setup the environment
+```bash 
+$ git clone --recursive git@github.com:ARG-NCTU/pytorch-dense-correspondence.git
+$ cd pytorch-dense-correspondence/docker
+$ source run.bash
+```
+In docker container
+```bash 
+$ source environment.sh
+```
+dataset can also get from the [link](http://gofile.me/773h8/9VnC5cw4t)
+
+Then you can follow the [toturial](./doc/tutorial_getting_started.md) 
+
+
+
 ### Updates 
 
 - September 4, 2018: Tutorial and data now available!  [We have a tutorial now available here](./doc/tutorial_getting_started.md), which walks through step-by-step of getting this repo running.
