@@ -238,6 +238,7 @@ def compute_distance_between_poses(pose_a, pose_b):
     pos_a = pose_a[0:3,3]
     pos_b = pose_b[0:3,3]
 
+    # sum of squares and then square root
     return np.linalg.norm(pos_a - pos_b)
 
 def compute_angle_between_quaternions(q, r):
@@ -254,8 +255,18 @@ def compute_angle_between_quaternions(q, r):
     :return: angle between the quaternions, in radians
     :rtype:
     """
+    # print("q", q)
+    # print("r", r)
+    #input of arccos should be between -1 and 1
+    temp = 2 * np.dot(q,r)**2 - 1
+    
+    if temp >1:
+        temp = 1.0
+    elif temp < -1:
+        temp = -1.0
 
-    theta = 2*np.arccos(2 * np.dot(q,r)**2 - 1)
+    theta = 2*np.arccos(temp)
+    # print(theta)
     return theta
 
 def compute_angle_between_poses(pose_a, pose_b):
@@ -271,7 +282,8 @@ def compute_angle_between_poses(pose_a, pose_b):
 
     quat_a = transformations.quaternion_from_matrix(pose_a)
     quat_b = transformations.quaternion_from_matrix(pose_b)
-
+    print("quat_a=",quat_a)
+    print("quat_b=",quat_b)
     return compute_angle_between_quaternions(quat_a, quat_b)
 
 
