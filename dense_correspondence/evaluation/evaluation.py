@@ -583,8 +583,10 @@ class DenseCorrespondenceEvaluation(object):
             fig.set_figwidth(15)
 
             D = np.shape(res_a)[2]
+
             mask_a_repeat = np.repeat(mask_a[:,:,np.newaxis], D, axis=2)
             mask_b_repeat = np.repeat(mask_b[:,:,np.newaxis], D, axis=2)
+
             res_a_mask = mask_a_repeat * res_a
             res_b_mask = mask_b_repeat * res_b
 
@@ -650,6 +652,8 @@ class DenseCorrespondenceEvaluation(object):
         res_a = dcn.forward_single_image_tensor(rgb_a_tensor).data.cpu().numpy()
         res_b = dcn.forward_single_image_tensor(rgb_b_tensor).data.cpu().numpy()
 
+        # ./dense_correspondence/dataset/spartan_dataset_masked.py
+        # get  'camera_info.yaml' in images/
         camera_intrinsics_a = dataset.get_camera_intrinsics(scene_name_a)
         camera_intrinsics_b = dataset.get_camera_intrinsics(scene_name_b)
         if not np.allclose(camera_intrinsics_a.K, camera_intrinsics_b.K):
@@ -1368,11 +1372,20 @@ class DenseCorrespondenceEvaluation(object):
         mask_a = np.asarray(mask_a)
         mask_b = np.asarray(mask_b)
 
+        # force the shape to be (H,W)
+        try:
+            mask_a = mask_a[:,:,0]
+            mask_b = mask_b[:,:,0]
+        except:
+            pass
+
         # compute dense descriptors
+        # ./dense_correspondence/dataset/spartan_dataset_masked.py
         rgb_a_tensor = dataset.rgb_image_to_tensor(rgb_a)
         rgb_b_tensor = dataset.rgb_image_to_tensor(rgb_b)
 
         # these are Variables holding torch.FloatTensors, first grab the data, then convert to numpy
+        # ./dense_correspondence/network/dense_correspondence_network.py
         res_a = dcn.forward_single_image_tensor(rgb_a_tensor).data.cpu().numpy()
         res_b = dcn.forward_single_image_tensor(rgb_b_tensor).data.cpu().numpy()
 
@@ -1393,6 +1406,8 @@ class DenseCorrespondenceEvaluation(object):
         dist = 0.01
 
         try:
+            # ./dense_correspondence/network/dense_correspondence_network.py
+            # it will read "descriptor_statistics.yaml" in trained_model/your_model_name 
             descriptor_image_stats = dcn.descriptor_image_stats
         except:
             print "Could not find descriptor image stats..."
@@ -1403,8 +1418,7 @@ class DenseCorrespondenceEvaluation(object):
             # convert to (u,v) format
             pixel_a = [sampled_idx_list[1][i], sampled_idx_list[0][i]]
             best_match_uv, best_match_diff, norm_diffs =\
-                DenseCorrespondenceNetwork.find_best_match(pixel_a, res_a,
-                                                                                                     res_b)
+                DenseCorrespondenceNetwork.find_best_match(pixel_a, res_a, res_b)
 
             # be careful, OpenCV format is  (u,v) = (right, down)
             kp1.append(cv2.KeyPoint(pixel_a[0], pixel_a[1], diam))
@@ -1420,6 +1434,8 @@ class DenseCorrespondenceEvaluation(object):
         axes.imshow(img3)
 
         # show colormap if possible (i.e. if descriptor dimension is 1 or 3)
+        # will show mask image
+
         if dcn.descriptor_dimension in [1,3]:
             DenseCorrespondenceEvaluation.plot_descriptor_colormaps(res_a, res_b,
                                                                     descriptor_image_stats=descriptor_image_stats,
@@ -1940,7 +1956,9 @@ class DenseCorrespondenceEvaluation(object):
         for _ in range(5):
             img_a_idx  = dataset.get_random_image_index(scene_name)
             pose_a     = dataset.get_pose_from_scene_name_and_idx(scene_name, img_a_idx)
-            img_b_idx  = dataset.get_img_idx_with_different_pose(scene_name, pose_a, num_attempts=100)
+            # img_b_idx  = dataset.get_img_idx_with_different_pose(scene_name, pose_a, num_attempts=100)
+            img_b_idx = dataset.get_img_idx_with_different_pose(scene_name, pose_a)
+
             if img_b_idx is None:
                 continue
             img_pairs.append([img_a_idx, img_b_idx])
@@ -2011,7 +2029,6 @@ class DenseCorrespondenceEvaluation(object):
                                                                                  scene_name,
                                                                                  img_pair[0],
                                                                                  img_pair[1])
-
         # Test Data
         print "\n\n-----------Test Data Evaluation----------------"
         dataset.set_test_mode()
@@ -2033,11 +2050,8 @@ class DenseCorrespondenceEvaluation(object):
                 img_pairs.append([1001, 2489])
                 img_pairs.append([1536, 1917])
             else:
-                raise ValueError("scene_type must be one of [drill, caterpillar], it was %s)" % (scene_type))
-
+                raise ValueError("scene_type must be one of [drill, caterpillar], it was %s)" % (scene_type))           
             scene_names = [scene_name] * len(img_pairs)
-
-
         for scene_name, img_pair in zip(scene_names, img_pairs):
             print "Image pair (%d, %d)" %(img_pair[0], img_pair[1])
             DenseCorrespondenceEvaluation.single_same_scene_image_pair_qualitative_analysis(dcn,
@@ -2045,7 +2059,6 @@ class DenseCorrespondenceEvaluation(object):
                                                                                  scene_name,
                                                                                  img_pair[0],
                                                                                  img_pair[1])
-
         if scene_type == "caterpillar":
             # Train Data
             print "\n\n-----------More Test Data Evaluation----------------"
